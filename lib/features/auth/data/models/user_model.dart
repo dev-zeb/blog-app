@@ -1,4 +1,5 @@
 import 'package:blog_app/features/auth/domain/entities/user.dart';
+import 'package:flutter/cupertino.dart';
 
 class UserModel extends User {
   UserModel({
@@ -8,10 +9,11 @@ class UserModel extends User {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> map) {
+    debugPrint('UserModel fromJson | map: $map');
     return UserModel(
       id: map['id'],
-      email: map['email'],
-      name: map['name'],
+      email: map['user_metadata']['email'],
+      name: map['user_metadata']['name'],
     );
   }
 }
