@@ -1,4 +1,4 @@
-import 'package:blog_app/features/auth/domain/entities/user.dart';
+import 'package:blog_app/core/common/entities/user.dart';
 import 'package:flutter/cupertino.dart';
 
 class UserModel extends User {
