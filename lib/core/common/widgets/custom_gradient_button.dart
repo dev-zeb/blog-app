@@ -1,11 +1,11 @@
 import 'package:blog_app/core/theme/app_pallete.dart';
 import 'package:flutter/material.dart';
 
-class AuthGradientButton extends StatelessWidget {
+class CustomGradientButton extends StatelessWidget {
   final String buttonText;
   final VoidCallback onPressed;
 
-  const AuthGradientButton({
+  const CustomGradientButton({
     super.key,
     required this.buttonText,
     required this.onPressed,
