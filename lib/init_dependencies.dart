@@ -9,6 +9,7 @@ import 'package:blog_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:blog_app/features/blogs/data/datasources/blog_remote_data_source.dart';
 import 'package:blog_app/features/blogs/data/repositories/blog_repository_impl.dart';
 import 'package:blog_app/features/blogs/domain/repositories/blog_repository.dart';
+import 'package:blog_app/features/blogs/domain/use_cases/fetch_all_blogs.dart';
 import 'package:blog_app/features/blogs/presentation/bloc/blog_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
@@ -99,10 +100,17 @@ void _initBlogs() {
     ),
   );
 
+  serviceLocator.registerFactory(
+    () => FetchAllBlogs(
+      serviceLocator(),
+    ),
+  );
+
   // Bloc
   serviceLocator.registerLazySingleton(
     () => BlogBloc(
-      serviceLocator(),
+      uploadBlog: serviceLocator(),
+      fetchAllBlogs: serviceLocator(),
     ),
   );
 }
