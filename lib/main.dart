@@ -25,19 +25,19 @@ void main() async {
           create: (_) => serviceLocator<BlogBloc>(),
         ),
       ],
-      child: const MyApp(),
+      child: const BlogApp(),
     ),
   );
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class BlogApp extends StatefulWidget {
+  const BlogApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<BlogApp> createState() => _BlogAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _BlogAppState extends State<BlogApp> {
   @override
   void initState() {
     super.initState();
