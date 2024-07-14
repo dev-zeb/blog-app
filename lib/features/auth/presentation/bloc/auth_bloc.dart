@@ -27,13 +27,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         _userSession = userSession,
         _appUserCubit = appUserCubit,
         super(AuthInitial()) {
+    on<AuthEvent>((_, emit) => emit(AuthLoading()));
     on<AuthSignUp>(_onAuthSignUp);
     on<AuthLogin>(_onAuthLogin);
     on<AuthUserSessionCheck>(_onUserSessionCheck);
   }
 
   Future<void> _onAuthSignUp(AuthSignUp event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
     final response = await _userSignUp(
       UserSignUpParams(
         email: event.email,
@@ -49,7 +49,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onAuthLogin(AuthLogin event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
     final response = await _userLogin(
       UserLoginParams(
         email: event.email,
