@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/core/error/failures.dart';
 import 'package:blog_app/core/network/connection_checker.dart';
+import 'package:blog_app/features/blogs/data/datasources/blog_local_data_source.dart';
 import 'package:blog_app/features/blogs/data/datasources/blog_remote_data_source.dart';
 import 'package:blog_app/features/blogs/data/models/blog_model.dart';
 import 'package:blog_app/features/blogs/domain/entities/blog.dart';
@@ -12,9 +13,14 @@ import 'package:uuid/uuid.dart';
 
 class BlogRepositoryImpl implements BlogRepository {
   final BlogRemoteDataSource blogRemoteDataSource;
+  final BlogLocalDataSource blogLocalDataSource;
   final ConnectionChecker connectionChecker;
 
-  BlogRepositoryImpl(this.blogRemoteDataSource, this.connectionChecker);
+  BlogRepositoryImpl(
+    this.blogRemoteDataSource,
+    this.blogLocalDataSource,
+    this.connectionChecker,
+  );
 
   @override
   Future<Either<Failure, Blog>> uploadBlog({
@@ -56,13 +62,15 @@ class BlogRepositoryImpl implements BlogRepository {
   Future<Either<Failure, List<Blog>>> getAllBlogs() async {
     try {
       if (!await (connectionChecker.isConnected)) {
-        // TODO: Show blogs from the local storage
-        return left(Failure('No internet connection.'));
+        final cachedBlogs = blogLocalDataSource.loadBlogs();
+        return right(cachedBlogs);
       }
-      final blogs = await blogRemoteDataSource.getAllBlogs();
 
-      return right(blogs);
-    } on ServerException catch(e) {
+      final remotelySavedBlogs = await blogRemoteDataSource.getAllBlogs();
+      blogLocalDataSource.uploadLocalBlogs(blogs: remotelySavedBlogs);
+
+      return right(remotelySavedBlogs);
+    } on ServerException catch (e) {
       return left(Failure(e.message));
     }
   }
