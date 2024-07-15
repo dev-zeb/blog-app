@@ -5,9 +5,7 @@ import 'package:blog_app/features/auth/data/datasources/auth_remote_data_source.
 import 'package:blog_app/core/common/entities/user.dart';
 import 'package:blog_app/features/auth/data/models/user_model.dart';
 import 'package:blog_app/features/auth/domain/repository/auth_repository.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -51,11 +49,7 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       final user = await functionToExecute();
       return right(user);
-    } on sb.AuthException catch (err, stk) {
-      debugPrint("AuthException\nError: ${err.message}\nStack: $stk");
-      return left(Failure(err.message));
-    } on ServerException catch (err, stk) {
-      debugPrint("ServerException\nError: ${err.message}\nStack: $stk");
+    } on ServerException catch (err) {
       return left(Failure(err.message));
     }
   }
@@ -81,8 +75,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return left(Failure('User is not logged in.'));
       }
       return right(currentUser);
-    } on ServerException catch (err, stk) {
-      debugPrint("ServerException\nError: ${err.message}\nStack: $stk");
+    } on ServerException catch (err) {
       return left(Failure(err.message));
     }
   }

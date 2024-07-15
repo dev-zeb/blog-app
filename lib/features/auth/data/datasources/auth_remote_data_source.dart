@@ -1,5 +1,6 @@
 import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/features/auth/data/models/user_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class AuthRemoteDataSource {
@@ -44,8 +45,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final modifiedUserDataJson =
           _getSimplifiedJsonFromSupabase(response.user!);
       return UserModel.fromJson(modifiedUserDataJson);
-    } catch (e) {
-      throw ServerException(e.toString());
+    } on AuthException catch (err, stk) {
+      debugPrint("AuthException\nError: ${err.message}\nStack: $stk");
+      throw ServerException(err.message);
+    } catch (err, stk) {
+      debugPrint("ServerException\nError: ${err.toString()}\nStack: $stk");
+      throw ServerException(err.toString());
     }
   }
 
@@ -68,8 +73,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final modifiedUserDataJson =
           _getSimplifiedJsonFromSupabase(response.user!);
       return UserModel.fromJson(modifiedUserDataJson);
-    } catch (e) {
-      throw ServerException(e.toString());
+    } on AuthException catch (err, stk) {
+      debugPrint("AuthException\nError: ${err.message}\nStack: $stk");
+      throw ServerException(err.message);
+    } catch (err, stk) {
+      debugPrint("ServerException\nError: ${err.toString()}\nStack: $stk");
+      throw ServerException(err.toString());
     }
   }
 
@@ -91,8 +100,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return UserModel.fromJson(modifiedUserDataJson);
       }
       return null;
-    } catch (e) {
-      throw ServerException(e.toString());
+    } on AuthException catch (err, stk) {
+      debugPrint("AuthException\nError: ${err.message}\nStack: $stk");
+      throw ServerException(err.message);
+    } catch (err, stk) {
+      debugPrint("ServerException\nError: ${err.toString()}\nStack: $stk");
+      throw ServerException(err.toString());
     }
   }
 

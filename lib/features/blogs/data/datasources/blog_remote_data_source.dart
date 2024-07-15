@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/features/blogs/data/models/blog_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class BlogRemoteDataSource {
@@ -26,8 +27,12 @@ class BlogRemoteDataSourceImpl implements BlogRemoteDataSource {
       final insertedBlog =
           await supabaseClient.from('blogs').insert(blog.toJson()).select();
       return BlogModel.fromJson(insertedBlog.first);
-    } catch (e) {
-      throw ServerException(e.toString());
+    } on PostgrestException catch (err, stk) {
+      debugPrint("PostgrestException\nError: ${err.message}\nStack: $stk");
+      throw ServerException(err.message);
+    } catch (err, stk) {
+      debugPrint("ServerException\nError: ${err.toString()}\nStack: $stk");
+      throw ServerException(err.toString());
     }
   }
 
@@ -47,8 +52,12 @@ class BlogRemoteDataSourceImpl implements BlogRemoteDataSource {
           .from('blog_images')
           .getPublicUrl(uploadedImagePath);
       return imageUrl;
-    } catch (e) {
-      throw ServerException(e.toString());
+    } on StorageException catch (err, stk) {
+      debugPrint("StorageException\nError: ${err.message}\nStack: $stk");
+      throw ServerException(err.message);
+    } catch (err, stk) {
+      debugPrint("ServerException\nError: ${err.toString()}\nStack: $stk");
+      throw ServerException(err.toString());
     }
   }
 
@@ -68,8 +77,12 @@ class BlogRemoteDataSourceImpl implements BlogRemoteDataSource {
         );
       }
       return blogModels;
-    } catch (e) {
-      throw ServerException(e.toString());
+    } on PostgrestException catch (err, stk) {
+      debugPrint("PostgrestException\nError: ${err.message}\nStack: $stk");
+      throw ServerException(err.message);
+    } catch (err, stk) {
+      debugPrint("ServerException\nError: ${err.toString()}\nStack: $stk");
+      throw ServerException(err.toString());
     }
   }
 }
