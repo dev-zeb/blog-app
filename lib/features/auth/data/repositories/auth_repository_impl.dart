@@ -1,3 +1,4 @@
+import 'package:blog_app/core/constants/constants.dart';
 import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/core/error/failures.dart';
 import 'package:blog_app/core/network/connection_checker.dart';
@@ -45,7 +46,7 @@ class AuthRepositoryImpl implements AuthRepository {
       Future<User> Function() functionToExecute) async {
     try {
       if (!await (connectionChecker.isConnected)) {
-        return left(Failure('No internet connection.'));
+        return left(Failure(Constants.noInternetConnectionMessage));
       }
       final user = await functionToExecute();
       return right(user);
@@ -60,19 +61,20 @@ class AuthRepositoryImpl implements AuthRepository {
       if (!await (connectionChecker.isConnected)) {
         final session = remoteDataSource.currentUserSession;
         if (session == null) {
-          return left(Failure('User not logged in.'));
+          return left(Failure(Constants.userNotLoggedInMessage));
         }
         return right(
           UserModel(
             id: session.user.id,
             email: session.user.email ?? '',
-            name: session.user.identities?.first.identityData!['name'],
+            name: session
+                .user.identities?.first.identityData![Constants.nameColumn],
           ),
         );
       }
       final currentUser = await remoteDataSource.getCurrentUser();
       if (currentUser == null) {
-        return left(Failure('User is not logged in.'));
+        return left(Failure(Constants.userNotLoggedInMessage));
       }
       return right(currentUser);
     } on ServerException catch (err) {

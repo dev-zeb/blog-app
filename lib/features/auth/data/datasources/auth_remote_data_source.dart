@@ -1,3 +1,4 @@
+import 'package:blog_app/core/constants/constants.dart';
 import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/features/auth/data/models/user_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -40,7 +41,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.user == null) {
-        throw const ServerException('User is null!');
+        throw ServerException(Constants.userNotFoundMessage);
       }
       final modifiedUserDataJson =
           _getSimplifiedJsonFromSupabase(response.user!);
@@ -68,7 +69,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.user == null) {
-        throw const ServerException('User is null!');
+        throw ServerException(Constants.userNotFoundMessage);
       }
       final modifiedUserDataJson =
           _getSimplifiedJsonFromSupabase(response.user!);
@@ -87,15 +88,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       if (currentUserSession != null) {
         final queryJsonDataList = await supabaseClient
-            .from('profiles')
+            .from(Constants.profilesTable)
             .select()
-            .eq('id', currentUserSession!.user.id);
+            .eq(Constants.idColumn, currentUserSession!.user.id);
 
         //Need to modify the JSON received to match with the desired format defined
         final modifiedUserDataJson = {
-          'id': queryJsonDataList.first['id'],
+          'id': queryJsonDataList.first[Constants.idColumn],
           'email': currentUserSession!.user.email,
-          'name': currentUserSession!.user.userMetadata?['name'],
+          'name': currentUserSession!.user.userMetadata?[Constants.nameColumn],
         };
         return UserModel.fromJson(modifiedUserDataJson);
       }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:blog_app/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:blog_app/core/common/widgets/custom_loader.dart';
 import 'package:blog_app/core/common/widgets/custom_text_field.dart';
+import 'package:blog_app/core/constants/constants.dart';
 import 'package:blog_app/core/theme/app_pallete.dart';
 import 'package:blog_app/core/utils/pick_image.dart';
 import 'package:blog_app/core/utils/show_snackbar.dart';
@@ -88,7 +89,7 @@ class _AddBlogPageState extends State<AddBlogPage> {
           }
         },
         builder: (context, state) {
-          if(state is BlogLoading) {
+          if (state is BlogLoading) {
             return const Loader();
           }
           return Padding(
@@ -120,12 +121,7 @@ class _AddBlogPageState extends State<AddBlogPage> {
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        children: [
-                          'Business',
-                          'Technology',
-                          'Programming',
-                          'Education'
-                        ].map((topic) {
+                        children: Constants.topics.map((topic) {
                           return Padding(
                             padding: const EdgeInsets.all(6.0),
                             child: GestureDetector(
