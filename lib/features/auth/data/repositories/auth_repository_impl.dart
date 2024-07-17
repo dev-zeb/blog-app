@@ -1,3 +1,4 @@
+import 'package:blog_app/core/constants/constants.dart';
 import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/core/error/failures.dart';
 import 'package:blog_app/core/network/connection_checker.dart';
@@ -5,9 +6,7 @@ import 'package:blog_app/features/auth/data/datasources/auth_remote_data_source.
 import 'package:blog_app/core/common/entities/user.dart';
 import 'package:blog_app/features/auth/data/models/user_model.dart';
 import 'package:blog_app/features/auth/domain/repository/auth_repository.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -47,15 +46,11 @@ class AuthRepositoryImpl implements AuthRepository {
       Future<User> Function() functionToExecute) async {
     try {
       if (!await (connectionChecker.isConnected)) {
-        return left(Failure('No internet connection.'));
+        return left(Failure(Constants.noInternetConnectionMessage));
       }
       final user = await functionToExecute();
       return right(user);
-    } on sb.AuthException catch (err, stk) {
-      debugPrint("AuthException\nError: ${err.message}\nStack: $stk");
-      return left(Failure(err.message));
-    } on ServerException catch (err, stk) {
-      debugPrint("ServerException\nError: ${err.message}\nStack: $stk");
+    } on ServerException catch (err) {
       return left(Failure(err.message));
     }
   }
@@ -66,23 +61,23 @@ class AuthRepositoryImpl implements AuthRepository {
       if (!await (connectionChecker.isConnected)) {
         final session = remoteDataSource.currentUserSession;
         if (session == null) {
-          return left(Failure('User not logged in.'));
+          return left(Failure(Constants.userNotLoggedInMessage));
         }
         return right(
           UserModel(
             id: session.user.id,
             email: session.user.email ?? '',
-            name: session.user.identities?.first.identityData!['name'],
+            name: session
+                .user.identities?.first.identityData![Constants.nameColumn],
           ),
         );
       }
       final currentUser = await remoteDataSource.getCurrentUser();
       if (currentUser == null) {
-        return left(Failure('User is not logged in.'));
+        return left(Failure(Constants.userNotLoggedInMessage));
       }
       return right(currentUser);
-    } on ServerException catch (err, stk) {
-      debugPrint("ServerException\nError: ${err.message}\nStack: $stk");
+    } on ServerException catch (err) {
       return left(Failure(err.message));
     }
   }

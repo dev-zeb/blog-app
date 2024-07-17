@@ -1,5 +1,7 @@
+import 'package:blog_app/core/constants/constants.dart';
 import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/features/auth/data/models/user_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class AuthRemoteDataSource {
@@ -39,13 +41,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.user == null) {
-        throw const ServerException('User is null!');
+        throw ServerException(Constants.userNotFoundMessage);
       }
       final modifiedUserDataJson =
           _getSimplifiedJsonFromSupabase(response.user!);
       return UserModel.fromJson(modifiedUserDataJson);
-    } catch (e) {
-      throw ServerException(e.toString());
+    } on AuthException catch (err, stk) {
+      debugPrint("AuthException\nError: ${err.message}\nStack: $stk");
+      throw ServerException(err.message);
+    } catch (err, stk) {
+      debugPrint("ServerException\nError: ${err.toString()}\nStack: $stk");
+      throw ServerException(err.toString());
     }
   }
 
@@ -63,13 +69,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.user == null) {
-        throw const ServerException('User is null!');
+        throw ServerException(Constants.userNotFoundMessage);
       }
       final modifiedUserDataJson =
           _getSimplifiedJsonFromSupabase(response.user!);
       return UserModel.fromJson(modifiedUserDataJson);
-    } catch (e) {
-      throw ServerException(e.toString());
+    } on AuthException catch (err, stk) {
+      debugPrint("AuthException\nError: ${err.message}\nStack: $stk");
+      throw ServerException(err.message);
+    } catch (err, stk) {
+      debugPrint("ServerException\nError: ${err.toString()}\nStack: $stk");
+      throw ServerException(err.toString());
     }
   }
 
@@ -78,21 +88,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       if (currentUserSession != null) {
         final queryJsonDataList = await supabaseClient
-            .from('profiles')
+            .from(Constants.profilesTable)
             .select()
-            .eq('id', currentUserSession!.user.id);
+            .eq(Constants.idColumn, currentUserSession!.user.id);
 
         //Need to modify the JSON received to match with the desired format defined
         final modifiedUserDataJson = {
-          'id': queryJsonDataList.first['id'],
+          'id': queryJsonDataList.first[Constants.idColumn],
           'email': currentUserSession!.user.email,
-          'name': currentUserSession!.user.userMetadata?['name'],
+          'name': currentUserSession!.user.userMetadata?[Constants.nameColumn],
         };
         return UserModel.fromJson(modifiedUserDataJson);
       }
       return null;
-    } catch (e) {
-      throw ServerException(e.toString());
+    } on AuthException catch (err, stk) {
+      debugPrint("AuthException\nError: ${err.message}\nStack: $stk");
+      throw ServerException(err.message);
+    } catch (err, stk) {
+      debugPrint("ServerException\nError: ${err.toString()}\nStack: $stk");
+      throw ServerException(err.toString());
     }
   }
 

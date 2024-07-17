@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:blog_app/core/constants/constants.dart';
 import 'package:blog_app/core/error/exceptions.dart';
 import 'package:blog_app/features/blogs/data/models/blog_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class BlogRemoteDataSource {
@@ -23,11 +25,17 @@ class BlogRemoteDataSourceImpl implements BlogRemoteDataSource {
   @override
   Future<BlogModel> uploadBlog(BlogModel blog) async {
     try {
-      final insertedBlog =
-          await supabaseClient.from('blogs').insert(blog.toJson()).select();
+      final insertedBlog = await supabaseClient
+          .from(Constants.blogsTable)
+          .insert(blog.toJson())
+          .select();
       return BlogModel.fromJson(insertedBlog.first);
-    } catch (e) {
-      throw ServerException(e.toString());
+    } on PostgrestException catch (err, stk) {
+      debugPrint("PostgrestException\nError: ${err.message}\nStack: $stk");
+      throw ServerException(err.message);
+    } catch (err, stk) {
+      debugPrint("ServerException\nError: ${err.toString()}\nStack: $stk");
+      throw ServerException(err.toString());
     }
   }
 
@@ -37,39 +45,48 @@ class BlogRemoteDataSourceImpl implements BlogRemoteDataSource {
     required String blogId,
   }) async {
     try {
-      final uploadedImagePath = 'blog-image/blog-id/$blogId';
-      await supabaseClient.storage.from('blog_images').upload(
+      final uploadedImagePath = Constants.blogImageDefaultPath + blogId;
+      await supabaseClient.storage.from(Constants.blogImageStorage).upload(
             uploadedImagePath,
             image,
           );
 
       final imageUrl = supabaseClient.storage
-          .from('blog_images')
+          .from(Constants.blogImageStorage)
           .getPublicUrl(uploadedImagePath);
       return imageUrl;
-    } catch (e) {
-      throw ServerException(e.toString());
+    } on StorageException catch (err, stk) {
+      debugPrint("StorageException\nError: ${err.message}\nStack: $stk");
+      throw ServerException(err.message);
+    } catch (err, stk) {
+      debugPrint("ServerException\nError: ${err.toString()}\nStack: $stk");
+      throw ServerException(err.toString());
     }
   }
 
   @override
   Future<List<BlogModel>> getAllBlogs() async {
     try {
-      final blogs =
-          await supabaseClient.from('blogs').select('*, profiles (name)');
+      final blogs = await supabaseClient
+          .from(Constants.blogsTable)
+          .select('*, ${Constants.profilesTable} (${Constants.nameColumn})');
       final List<BlogModel> blogModels = [];
       for (var i = 0; i < blogs.length; i++) {
         final blog = blogs[i];
 
         blogModels.add(
           BlogModel.fromJson(blog).copyWith(
-            posterName: blog['profiles']['name'],
+            posterName: blog[Constants.profilesTable][Constants.nameColumn],
           ),
         );
       }
       return blogModels;
-    } catch (e) {
-      throw ServerException(e.toString());
+    } on PostgrestException catch (err, stk) {
+      debugPrint("PostgrestException\nError: ${err.message}\nStack: $stk");
+      throw ServerException(err.message);
+    } catch (err, stk) {
+      debugPrint("ServerException\nError: ${err.toString()}\nStack: $stk");
+      throw ServerException(err.toString());
     }
   }
 }
